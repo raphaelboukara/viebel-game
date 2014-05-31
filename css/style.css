@@ -1,0 +1,123 @@
+@font-face
+{
+	font-family: Bangers;
+	src: url(../fonts/Bangers.ttf);
+}
+
+html {
+	background: url(../images/fond.jpg) no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+body {
+	margin: 0 auto;
+	overflow: hidden;
+	box-shadow: 0 0px 5px rgba(0, 0, 0, 0.1) inset;
+	font-weight: bold;
+
+	font-family: Bangers;
+	font-size: 25px;
+	padding: 23;
+	text-transform: uppercase;
+}
+
+.btn {
+  	outline : none !important;
+
+  	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+
+	tap-highlight-color: transparent;
+	-webkit-tap-highlight-color: transparent;
+	-moz-tap-highlight-color: transparent;
+}
+
+.item {
+	position:absolute;
+	left:0;
+	right:0;
+	top:25%;
+	line-height: 175px;
+	text-align: center;
+	background-color: #e5e5e5;
+	border: 5px solid #fff;
+	border-radius: 40%;
+	width: 175px;
+	height: 175px;
+	margin: 0 auto;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1) inset;
+}
+
+.btn {
+	position: absolute;
+	background-color: rgb(240, 200, 140);
+	width: 40px;
+	height: 40px;
+	border-radius: 48%;
+	bottom: 25px;
+	line-height: 50px;
+	text-align: center;
+	box-shadow: 4px 4px 4px rgba(0, 0, 0, 1);
+}
+
+.btn-game {
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	border: 5px solid #0F08C9;
+}
+.btn-game:hover {
+	background-color: #0F08C9;
+	border: 5px solid rgb(240, 200, 140);
+	color: rgb(240, 200, 140);
+}
+
+.btn-left {
+	border-bottom-left-radius: 0;
+	border: 5px solid #C20404;
+	color: #C20404;
+	left: 20px;
+}
+
+.btn-left:hover {
+	background-color: #C20404;
+	border: 5px solid rgb(240, 200, 140);
+	color: rgb(240, 200, 140);
+}
+
+.btn-right {
+	border-bottom-right-radius: 0;
+	border: 5px solid green;
+	color: green;
+	right: 20px;
+}
+
+.btn-right:hover {
+	background-color: green;
+	border: 5px solid rgb(240, 200, 140);
+	color: rgb(240, 200, 140);
+}
+
+.time {
+	position: absolute;
+	top: 15px;
+	left: 20px;
+	margin: 0;
+	padding: 0px;
+	color: rgb(240, 200, 140);
+	text-shadow: rgb(3, 3, 3) 4px 4px 4px;
+} 
+
+.score {
+	position: absolute;
+	top: 15px;
+	right: 20px;
+	margin: 0;
+	padding: 0px;
+	color: rgb(240, 200, 140);
+	text-shadow: rgb(3, 3, 3) 4px 4px 4px;
+} 
