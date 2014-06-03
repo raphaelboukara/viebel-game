@@ -1,9 +1,9 @@
 (ns viebel-game.core
 	(:use-macros [purnam.core :only [! !>]]
-	           [cljs.core.async.macros :only [go go-loop]]
+	           [cljs.core.async.macros :only [alt! go go-loop]]
 	           [gyr.core :only [def.module 
                              	def.controller
-                              	def.directive]])
+                              def.directive]])
 	(:require [cljs.core.async :refer [<! chan put! timeout]]))
 
 (enable-console-print!)
@@ -11,8 +11,9 @@
 (def.module app [ngTouch ngAnimate])
 
 (def user-input-chan (chan))
+(def game-chan (chan))
 
-(def item-val (atom nil))
+(def item-val (atom nil)) 
 (def item-count (atom 0))
 (def item-score (atom 0))
 (def item-timer (atom 0))
@@ -29,7 +30,7 @@
 	(.$apply $scope (! $scope.item.score new-value)))
 
 (defn on-item-timer-change [$scope _ _ _ new-value]
-	(! $scope.item.timer new-value))
+	(.$apply $scope (! $scope.item.timer new-value)))
 
 (defn on-status-running-change [$scope _ _ _ new-value]
 	(.$apply $scope (! $scope.status.running new-value)))
@@ -51,12 +52,15 @@
    	(reset! item-timer 30))
 
 (defn start-timer []
-	(go-loop [timer 30]
-        (reset! item-timer timer)
-		(<! (timeout 1000))
-		(if (= timer 0)
-			(put! user-input-chan :end)
-			(recur (dec timer)))))
+  (go-loop [timer 30]
+    (reset! item-timer timer)
+    (let [[v c] (alt! [game-chan (timeout 1000)])]
+      (cond 
+        (= :end v) (do
+                      (reset! item-timer 30)
+                      (put! user-input-chan :end))
+        (= timer 0) (put! user-input-chan :end)
+        :else (recur (dec timer))))))
   
 (defn run-game []
   (go-loop [item-past nil]
@@ -70,7 +74,7 @@
                  (recur @item-val))
         :end (do
                (reset! status-running false)
-               (reset! item-val "END"))
+               (recur @item-val))
         :yes (do
                (if (= item-past @item-val) (swap! item-score inc))
                (swap! item-count inc)
@@ -85,7 +89,9 @@
 	(run-game))
 
 (defn init-handlers [$scope]
-  (! $scope.game #(put! user-input-chan :start))
+  (! $scope.game #(do
+                    (put! game-chan :end)
+                    (put! user-input-chan :start)))
   (! $scope.yes #(when @status-running (put! user-input-chan :yes)))
   (! $scope.no #(when @status-running (put! user-input-chan :no))))
 
