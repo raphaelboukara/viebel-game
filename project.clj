@@ -16,4 +16,5 @@
               :compiler {
                 :output-to "viebel_game.js"
                 :output-dir "out"
-                :optimizations :none}}]})
+                :optimizations :simple
+                :pretty-print true}}]})

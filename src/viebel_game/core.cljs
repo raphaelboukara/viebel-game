@@ -1,14 +1,18 @@
 (ns viebel-game.core
-	(:use-macros [purnam.core :only [! !>]]
-	           [cljs.core.async.macros :only [alt! go go-loop]]
-	           [gyr.core :only [def.module 
-                             	def.controller
-                              def.directive]])
-	(:require [cljs.core.async :refer [<! chan put! timeout]]))
+  (:use-macros [purnam.core :only [! !>]]
+             [cljs.core.async.macros :only [alt! go go-loop]]
+             [gyr.core :only [def.module 
+                                def.directive
+                                def.controller]])
+  (:require [cljs.core.async :refer [<! chan put! timeout]]))
 
 (enable-console-print!)
 
+
+
+
 (def.module app [ngTouch ngAnimate])
+
 
 (def user-input-chan (chan))
 (def game-chan (chan))
@@ -21,40 +25,51 @@
 (def status-running (atom false))
 
 (defn on-item-val-change [$scope _ _ _ new-value]
-	(.$apply $scope (! $scope.item.val new-value)))
+  (.$apply $scope (! $scope.item.val new-value)))
 
 (defn on-item-count-change [$scope _ _ _ new-value]
-	(.$apply $scope (! $scope.item.count new-value)))
+  (.$apply $scope (! $scope.item.count new-value)))
 
 (defn on-item-score-change [$scope _ _ _ new-value]
-	(.$apply $scope (! $scope.item.score new-value)))
+  (.$apply $scope (! $scope.item.score new-value)))
 
-(defn on-item-timer-change [$scope _ _ _ new-value]
-	(.$apply $scope (! $scope.item.timer new-value)))
+(defn on-item-timer-change [$scope $timeout _ _ _ new-value]
+  ($timeout #(! $scope.item.timer new-value)))
 
 (defn on-status-running-change [$scope _ _ _ new-value]
-	(.$apply $scope (! $scope.status.running new-value)))
+  (.$apply $scope (! $scope.status.running new-value)))
 
-(defn init-watchers [$scope]
-	(add-watch item-val :on-item-val-change (partial on-item-val-change $scope))
- 	(add-watch item-count :on-item-count-change (partial on-item-count-change $scope))
-	(add-watch item-score :on-item-score-change (partial on-item-score-change $scope))
-  (add-watch item-timer :on-item-timer-change (partial on-item-timer-change $scope))
+(defn init-watchers [$scope $timeout]
+  (add-watch item-val :on-item-val-change (partial on-item-val-change $scope))
+  (add-watch item-count :on-item-count-change (partial on-item-count-change $scope))
+  (add-watch item-score :on-item-score-change (partial on-item-score-change $scope))
+  (add-watch item-timer :on-item-timer-change (partial on-item-timer-change $scope $timeout))
   (add-watch status-running :on-status-running-change (partial on-status-running-change $scope))
-	(!> $scope.$on "$destroy" (fn[]
-	                            (remove-watch item-val :on-item-val-change)
-                             	(remove-watch item-count :on-item-count-change)
-                            	(remove-watch item-score :on-item-score-change)
-                             	(remove-watch item-timer :on-item-score-change)
+  (!> $scope.$on "$destroy" (fn[]
+                              (remove-watch item-val :on-item-val-change)
+                              (remove-watch item-count :on-item-count-change)
+                              (remove-watch item-score :on-item-score-change)
+                              (remove-watch item-timer :on-item-score-change)
                               (remove-watch status-running :on-status-running-change))))
 
 (defn init-game [] 
-   	(reset! item-timer 30))
+    (reset! item-timer 30))
+
+#_(defn start-timer []
+  (go-loop [timer 30]
+    (reset! item-timer timer)
+    (let [[v c] (alt! [game-chan (timeout 1000)])]
+      (cond 
+        (= :end v) (do
+                      (reset! item-timer 30)
+                      (put! user-input-chan :end))
+        (= timer 0) (put! user-input-chan :end)
+        :else (recur (dec timer))))))
 
 (defn start-timer []
   (go-loop [timer 30]
     (reset! item-timer timer)
-    (let [[v c] (alt! [game-chan (timeout 1000)])]
+    (let [v (<! (timeout 1000))]
       (cond 
         (= :end v) (do
                       (reset! item-timer 30)
@@ -86,7 +101,7 @@
 
 (defn init-model []
   (init-game)
-	(run-game))
+  (run-game))
 
 (defn init-handlers [$scope]
   (! $scope.game #(do
@@ -96,10 +111,9 @@
   (! $scope.no #(when @status-running (put! user-input-chan :no))))
 
 (def.controller app.MainCtrl [$scope $timeout]
-  (init-watchers $scope)
+  (init-watchers $scope $timeout)
   (init-model)
   (init-handlers $scope))
-
 
 
 

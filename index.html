@@ -11,18 +11,20 @@
 		<script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/angular-touch/angular-touch.js"></script>
         <script src="bower_components/angular-animate/angular-animate.js"></script>
-		<script src="out/goog/base.js" type="text/javascript"></script>
-        <script src="viebel_game.js" type="text/javascript"></script>
-        <script type="text/javascript">goog.require("viebel_game.core");</script>
+
+        
 	</head>
-    <body ng-app="app" ng-controller="MainCtrl" ng-swipe-left="no()" ng-swipe-right="yes()">
+    <body>
+        
+        <div ng-app="app" ng-controller="MainCtrl" ng-swipe-left="no()" ng-swipe-right="yes()">
+            <p class="time">{{item.timer}} sec</p>
+            <p class="score">{{item.score}} / {{item.count}}</p>
+            <div class="item animated" animate-on-change="item.count">{{item.val}}</div>
+            <div class="btn btn-left" ng-click="no()" ng-show="status.running"></div>
+            <div class="btn btn-game" ng-click="game()"></div>
+            <div class="btn btn-right" ng-click="yes()" ng-show="status.running"></div>
+        </div>
 
-        <p class="time">{{item.timer}} sec</p>
-        <p class="score">{{item.score}} / {{item.count}}</p>
-        <div class="item animated" animate-on-change="item.count">{{item.val}}</div>
-        <div class="btn btn-left" ng-click="no()" ng-show="status.running"></div>
-        <div class="btn btn-game" ng-click="game()"></div>
-        <div class="btn btn-right" ng-click="yes()" ng-show="status.running"></div>  
-
+        <script type="text/javascript" src="viebel_game.js"></script> 
     </body> 
 </html>
